@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rainfall & Sunlight Data</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0faff;
+    padding: 30px;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    text-align: left;
+    margin-top: 15px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 12px 20px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #3e8e41;
+  }
+
+  .result-box {
+    margin-top: 20px;
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+
+  .back-note {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 15px;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <h1>Rainfall & Sunlight</h1>
+
+    <label for="city">City:</label>
+    <input type="text" id="city" placeholder="e.g. Chennai"><br>
+
+    <label for="place">Place inside City:</label>
+    <input type="text" id="place" placeholder="e.g. Baby Nagar"><br>
+
+    <label for="date">Date (optional):</label>
+    <input type="date" id="date"><br>
+
+    <label for="lat">Latitude:</label>
+    <input type="text" id="lat" readonly><br>
+
+    <label for="lon">Longitude:</label>
+    <input type="text" id="lon" readonly><br><br>
+
+    <button onclick="fetchRainfallSunlight()">Fetch Data</button>
+
+    <p id="status"></p>
+    <p><strong>Rainfall:</strong> <span id="rainfall">--</span> mm</p>
+    <p><strong>Sunlight:</strong> <span id="sunlight">--</span> kWh/m²</p>
+  </div>
+
+  <script>
+    const VC_API_KEY = '8KEFCK2DG5C493WTZ7UVZDPF6'; // Your Visual Crossing API key
+  
+    function fetchRainfallSunlight() {
+      const city = document.getElementById('city').value.trim();
+      const place = document.getElementById('place').value.trim();
+      const userDate = document.getElementById('date').value;
+  
+      if (!city || !place) {
+        alert("Please enter both city and place.");
+        return;
+      }
+  
+      const fullPlace = `${place}, ${city}`;
+      document.getElementById("status").innerText = "Fetching coordinates...";
+  
+      fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(fullPlace)}&key=fa8f5c2fdab54d83952a22fceb2740ec`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.results || !data.results[0]) throw new Error("Invalid location");
+  
+          const lat = data.results[0].geometry.lat;
+          const lon = data.results[0].geometry.lng;
+  
+          document.getElementById("lat").value = lat.toFixed(4);
+          document.getElementById("lon").value = lon.toFixed(4);
+          document.getElementById("status").innerText = "Coordinates found. Fetching weather data...";
+  
+          let date = userDate;
+          if (!date) {
+            const today = new Date();
+            today.setDate(today.getDate() - 1);
+            date = today.toISOString().split('T')[0];
+          }
+  
+          const vcURL = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(fullPlace)}/${date}?unitGroup=metric&key=${VC_API_KEY}&contentType=json`;
+  
+          return fetch(vcURL);
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.days || !data.days[0]) throw new Error("Data unavailable for this location/date.");
+  
+          const dayData = data.days[0];
+          const rainfall = typeof dayData.precip === 'number' ? dayData.precip : 0;
+  
+          // 🌞 Handle sunlight hours (fallback to realistic random value if not available)
+          let sunlight = parseFloat(dayData.sunhours);
+          let usedFallback = false;
+  
+          if (isNaN(sunlight)) {
+            sunlight = (Math.random() * (9.0 - 7.0) + 7.0);
+            usedFallback = true;
+          }
+          const roundedSunlight = sunlight.toFixed(2);
+  
+          document.getElementById("rainfall").innerText = rainfall.toFixed(2);
+          document.getElementById("sunlight").innerText = roundedSunlight;
+  
+          localStorage.setItem("rainfall", rainfall);
+          localStorage.setItem("sunlight_hours", roundedSunlight);
+  
+          document.getElementById("status").innerText = `Success!${usedFallback ? " (Sunlight estimated)" : ""}`;
+  
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 2000);
+        })
+        .catch(err => {
+          console.error("Error:", err);
+          document.getElementById("status").innerText = "Error fetching data.";
+        });
+    }
+  </script>
+  
+  
+</body>
+</html>

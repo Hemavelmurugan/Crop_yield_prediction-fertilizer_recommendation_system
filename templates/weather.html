@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculate Weather</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0faff;
+    padding: 30px;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    text-align: left;
+    margin-top: 15px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 12px 20px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #3e8e41;
+  }
+
+  .result-box {
+    margin-top: 20px;
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+
+  .back-note {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 15px;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <h1>Weather Data</h1>
+
+    <label for="city">City:</label>
+    <input type="text" id="city" readonly><br>
+    
+    <label for="place">Place inside city:</label>
+    <input type="text" id="place" placeholder="e.g. Anna Nagar" required><br><br>
+
+
+    <label for="lat">Latitude:</label>
+    <input type="text" id="lat" readonly><br>
+
+    <label for="lon">Longitude:</label>
+    <input type="text" id="lon" readonly><br>
+
+    
+    <button onclick="fetchWeather()">Fetch Weather</button>
+
+    <div id="weatherResult" style="margin-top: 20px;">
+      <p><strong>Temperature:</strong> <span id="temperature">--</span> °C</p>
+      <p><strong>Humidity:</strong> <span id="humidity">--</span> %</p>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function () {
+      // Restore saved data from localStorage
+      const city = localStorage.getItem("city");
+      const lat = localStorage.getItem("latitude");
+      const lon = localStorage.getItem("longitude");
+      const temperature = localStorage.getItem("temperature");
+      const humidity = localStorage.getItem("humidity");
+  
+      if (city) document.getElementById("city").value = city;
+      if (lat) document.getElementById("lat").value = lat;
+      if (lon) document.getElementById("lon").value = lon;
+      if (temperature) document.getElementById("temperature").textContent = temperature;
+      if (humidity) document.getElementById("humidity").textContent = humidity;
+    };
+  
+    async function fetchWeather() {
+      const city = document.getElementById("city").value.trim();
+      const place = document.getElementById("place").value.trim();
+  
+      if (!city || !place) {
+        alert("Please enter both city and place.");
+        return;
+      }
+  
+      localStorage.setItem("city", city); // Save city in case it's typed
+  
+      const fullLocation = `${place}, ${city}`;
+      const geoApiKey = "fa8f5c2fdab54d83952a22fceb2740ec"; // OpenCage key
+  
+      try {
+        // Fetch coordinates
+        const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(fullLocation)}&key=${geoApiKey}`);
+        const geoData = await geoRes.json();
+  
+        if (!geoData.results || geoData.results.length === 0) {
+          alert("Failed to get coordinates for the place.");
+          return;
+        }
+  
+        const lat = geoData.results[0].geometry.lat.toFixed(4);
+        const lon = geoData.results[0].geometry.lng.toFixed(4);
+  
+        document.getElementById("lat").value = lat;
+        document.getElementById("lon").value = lon;
+  
+        // Call weather backend
+        const weatherRes = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+        if (!weatherRes.ok) throw new Error("Bad response from weather API");
+  
+        const data = await weatherRes.json();
+  
+        if (!data || data.temperature == null || data.humidity == null) {
+          alert("Weather data not found.");
+          return;
+        }
+  
+        document.getElementById("temperature").textContent = data.temperature;
+        document.getElementById("humidity").textContent = data.humidity;
+  
+        // Store values for persistence
+        localStorage.setItem("temperature", data.temperature);
+        localStorage.setItem("humidity", data.humidity);
+        localStorage.setItem("latitude", lat);
+        localStorage.setItem("longitude", lon);
+  
+        // Redirect back
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+  
+      } catch (err) {
+        console.error("Error fetching weather:", err);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Fertilizer Guide</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fertilizer Recommendations</h1>
+        </header>
+
+        <div class="input-section">
+            <div class="input-group">
+                <h2>Enter Soil Type</h2>
+                <select id="soil-type"></select>
+            </div>
+
+            <div class="input-group">
+                <h2>Enter Crop Type</h2>
+                <select id="crop-type"></select>
+            </div>
+
+            <div class="input-group">
+                <h2>Enter Irrigation Method</h2>
+                <select id="irrigation-type"></select>
+            </div>
+        </div>
+
+        <button id="recommend-btn">Show Me Fertilizer Options</button>
+
+        <div id="error-message" class="error-message"></div>
+
+        <div id="results" class="results" style="display:none;">
+            <div class="crop-info">
+                <h2 id="crop-name" class="crop-name">Crop Name</h2>
+                <p id="suitability-score" class="score">Suitability: 100%</p>
+                <p id="soil-health-score" class="score">Soil Health: 90%</p>
+                <p id="fertilizer-quantity" class="score">Fertilizer Quantity: 5 tons/acre</p>
+            </div>
+
+            <div class="recommendations">
+                <h3>Organic Fertilizers</h3>
+                <div id="ready-made-fertilizers" class="fertilizer-cards"></div>
+
+                <h3>Homemade Fertilizers</h3>
+                <div id="homemade-fertilizers" class="fertilizer-cards"></div>
+            </div>
+
+            <h3>Soil Health Analysis</h3>
+            <table class="soil-health-table">
+                <thead>
+                    <tr>
+                        <th>Soil Health Score</th>
+                        <th>Defects</th>
+                        <th>Solutions</th>
+                    </tr>
+                </thead>
+                <tbody id="soil-health-table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal for "How to Make" -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span id="close-modal" class="close">&times;</span>
+                <h2 id="modal-title">Fertilizer Making Steps</h2>
+                <p id="modal-body"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

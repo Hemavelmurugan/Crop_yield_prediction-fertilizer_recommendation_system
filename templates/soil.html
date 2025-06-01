@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Soil Data</title>
+  <style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0faff;
+    padding: 30px;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
+  }
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    display: block;
+    text-align: left;
+    margin-top: 15px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 12px 20px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #3e8e41;
+  }
+
+  .result-box {
+    margin-top: 20px;
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+
+  .back-note {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 15px;
+  }
+
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    #submitBtn {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .info {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Soil Information</h2>
+  <div>
+    <p><strong>City:</strong> <span id="city"></span></p>
+    <p><strong>Latitude:</strong> <span id="lat"></span></p>
+    <p><strong>Longitude:</strong> <span id="lon"></span></p>
+  </div>
+
+  <form id="soilForm">
+    <label for="soil_type">Soil Type:</label>
+    <select id="soil_type">
+      <option value="Loamy">Loamy</option>
+      <option value="Clay">Clay</option>
+      <option value="Sandy">Sandy</option>
+      <option value="Silty">Silty</option>
+      <option value="Peaty">Peaty</option>
+      <option value="Chalky">Chalky</option>
+    </select>
+
+    <label for="soil_color">Soil Color:</label>
+    <select id="soil_color">
+      <option value="Dark Brown">Dark Brown</option>
+      <option value="Reddish">Reddish</option>
+      <option value="Yellowish">Yellowish</option>
+      <option value="Black">Black</option>
+      <option value="Gray">Gray</option>
+    </select>
+
+    <label for="soil_name">Soil Name:</label>
+    <select id="soil_name">
+      <option value="Alluvial">Alluvial</option>
+      <option value="Black Soil">Black Soil</option>
+      <option value="Red Soil">Red Soil</option>
+      <option value="Laterite">Laterite</option>
+      <option value="Mountain Soil">Mountain Soil</option>
+    </select>
+
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
+
+  <div class="info" id="results" style="display: none;">
+    <p>Soil pH: <span id="phResult"></span></p>
+    <p>Soil Moisture Level (%): <span id="moistureResult"></span></p>
+    <p>Returning to main page...</p>
+  </div>
+
+  <script>
+    // Load city and coordinates from localStorage
+    document.getElementById('city').textContent = localStorage.getItem('city') || '';
+    document.getElementById('lat').textContent = localStorage.getItem('lat') || '';
+    document.getElementById('lon').textContent = localStorage.getItem('lon') || '';
+
+    document.getElementById('soilForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const soilType = document.getElementById('soil_type').value;
+      const soilColor = document.getElementById('soil_color').value;
+      const soilName = document.getElementById('soil_name').value;
+
+      // Simulate soil pH and moisture (You can replace this with real API logic)
+      const soilPh = (Math.random() * (7.5 - 5.5) + 5.5).toFixed(2); // 5.5 to 7.5
+      const soilMoisture = (Math.random() * (40 - 15) + 15).toFixed(2); // 15% to 40%
+
+      // Save to localStorage
+      localStorage.setItem('soil_type', soilType);
+      localStorage.setItem('soil_color', soilColor);
+      localStorage.setItem('soil_name', soilName);
+      localStorage.setItem('soil_ph', soilPh);
+      localStorage.setItem('soil_moisture', soilMoisture);
+
+      // Show results
+      document.getElementById('phResult').textContent = soilPh;
+      document.getElementById('moistureResult').textContent = soilMoisture;
+      document.getElementById('results').style.display = 'block';
+
+      // Redirect back after 2 seconds
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

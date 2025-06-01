@@ -1,0 +1,230 @@
+/* style.css - Final Version */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #e0f7e9, #f6fff9);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #2e7d32; /* Dark Green */
+}
+
+.input-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    flex: 1 1 250px;
+}
+
+.input-group h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #1b5e20;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #388e3c;
+    font-size: 1rem;
+    background-color: #f1f8e9;
+}
+
+button#recommend-btn {
+    display: block;
+    width: 260px;
+    margin: 20px auto;
+    padding: 12px;
+    font-size: 1.2rem;
+    background: #43a047;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button#recommend-btn:hover {
+    background: #2e7d32;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.results {
+    margin-top: 30px;
+    padding: 25px;
+    background: #e8f5e9;
+    border-radius: 15px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.crop-info {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.crop-info .crop-name {
+    font-size: 2rem;
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.score {
+    font-size: 1.2rem;
+    color: #1b5e20;
+    margin-bottom: 10px;
+}
+
+.recommendations {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.recommendations h3 {
+    font-size: 1.8rem;
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+/* Fertilizer Cards */
+.fertilizer-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.fertilizer-card {
+    background: #ffffff;
+    border: 2px solid #81c784;
+    border-radius: 12px;
+    width: 180px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.fertilizer-card:hover {
+    transform: scale(1.05);
+}
+
+.fertilizer-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.make-button {
+    background-color: #43a047;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.make-button:hover {
+    background-color: #2e7d32;
+}
+
+/* Soil Health Table */
+.soil-health-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+.soil-health-table th, .soil-health-table td {
+    padding: 12px 20px;
+    border: 1px solid #a5d6a7;
+    text-align: center;
+}
+
+.soil-health-table th {
+    background-color: #66bb6a;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.soil-health-table td {
+    background-color: #f1f8e9;
+}
+
+/* Modal Popup for How to Make */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #81c784;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.close {
+    color: #2e7d32;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #d32f2f;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
