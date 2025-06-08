@@ -372,6 +372,7 @@
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
 import pickle
+import os
 
 app = Flask(__name__)
 
@@ -771,10 +772,12 @@ def fertilizer():
     return render_template('fertilizer.html')
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
 # if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
+#     app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
 
 
 app = Flask(__name__)
