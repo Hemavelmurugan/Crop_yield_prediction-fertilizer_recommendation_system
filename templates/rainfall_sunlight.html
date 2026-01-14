@@ -101,79 +101,95 @@
   </div>
 
   <script>
-    const VC_API_KEY = '8KEFCK2DG5C493WTZ7UVZDPF6'; // Your Visual Crossing API key
-  
-    function fetchRainfallSunlight() {
-      const city = document.getElementById('city').value.trim();
-      const place = document.getElementById('place').value.trim();
-      const userDate = document.getElementById('date').value;
-  
-      if (!city || !place) {
-        alert("Please enter both city and place.");
-        return;
-      }
-  
-      const fullPlace = `${place}, ${city}`;
-      document.getElementById("status").innerText = "Fetching coordinates...";
-  
-      fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(fullPlace)}&key=fa8f5c2fdab54d83952a22fceb2740ec`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.results || !data.results[0]) throw new Error("Invalid location");
-  
-          const lat = data.results[0].geometry.lat;
-          const lon = data.results[0].geometry.lng;
-  
-          document.getElementById("lat").value = lat.toFixed(4);
-          document.getElementById("lon").value = lon.toFixed(4);
-          document.getElementById("status").innerText = "Coordinates found. Fetching weather data...";
-  
-          let date = userDate;
-          if (!date) {
-            const today = new Date();
-            today.setDate(today.getDate() - 1);
-            date = today.toISOString().split('T')[0];
-          }
-  
-          const vcURL = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(fullPlace)}/${date}?unitGroup=metric&key=${VC_API_KEY}&contentType=json`;
-  
-          return fetch(vcURL);
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.days || !data.days[0]) throw new Error("Data unavailable for this location/date.");
-  
-          const dayData = data.days[0];
-          const rainfall = typeof dayData.precip === 'number' ? dayData.precip : 0;
-  
-          // 🌞 Handle sunlight hours (fallback to realistic random value if not available)
-          let sunlight = parseFloat(dayData.sunhours);
-          let usedFallback = false;
-  
-          if (isNaN(sunlight)) {
-            sunlight = (Math.random() * (9.0 - 7.0) + 7.0);
-            usedFallback = true;
-          }
-          const roundedSunlight = sunlight.toFixed(2);
-  
-          document.getElementById("rainfall").innerText = rainfall.toFixed(2);
-          document.getElementById("sunlight").innerText = roundedSunlight;
-  
-          localStorage.setItem("rainfall", rainfall);
-          localStorage.setItem("sunlight_hours", roundedSunlight);
-  
-          document.getElementById("status").innerText = `Success!${usedFallback ? " (Sunlight estimated)" : ""}`;
-  
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 2000);
-        })
-        .catch(err => {
-          console.error("Error:", err);
-          document.getElementById("status").innerText = "Error fetching data.";
-        });
+  const VC_API_KEY = '8KEFCK2DG5C493WTZ7UVZDPF6'; // Visual Crossing API key
+
+  function fetchRainfallSunlight() {
+    const city = document.getElementById('city').value.trim();
+    const place = document.getElementById('place').value.trim();
+    const userDate = document.getElementById('date').value;
+
+    if (!city || !place) {
+      alert("Please enter both city and place.");
+      return;
     }
-  </script>
+
+    const fullPlace = `${place}, ${city}`;
+    document.getElementById("status").innerText = "Fetching coordinates...";
+
+    // 🌍 NOMINATIM GEOCODING (NO API KEY)
+    fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(fullPlace)}`,
+      {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "CropYieldPredictionSystem/1.0 (student-project)"
+        }
+      }
+    )
+      .then(res => res.json())
+      .then(data => {
+        if (!data || !data[0]) throw new Error("Invalid location");
+
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+
+        document.getElementById("lat").value = lat.toFixed(4);
+        document.getElementById("lon").value = lon.toFixed(4);
+        document.getElementById("status").innerText =
+          "Coordinates found. Fetching weather data...";
+
+        let date = userDate;
+        if (!date) {
+          const today = new Date();
+          today.setDate(today.getDate() - 1);
+          date = today.toISOString().split('T')[0];
+        }
+
+        const vcURL =
+          `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/` +
+          `${encodeURIComponent(fullPlace)}/${date}?unitGroup=metric&key=${VC_API_KEY}&contentType=json`;
+
+        return fetch(vcURL);
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.days || !data.days[0])
+          throw new Error("Data unavailable for this location/date.");
+
+        const dayData = data.days[0];
+        const rainfall = typeof dayData.precip === 'number' ? dayData.precip : 0;
+
+        // 🌞 Sunlight hours (fallback if missing)
+        let sunlight = parseFloat(dayData.sunhours);
+        let usedFallback = false;
+
+        if (isNaN(sunlight)) {
+          sunlight = (Math.random() * (9.0 - 7.0) + 7.0);
+          usedFallback = true;
+        }
+
+        const roundedSunlight = sunlight.toFixed(2);
+
+        document.getElementById("rainfall").innerText = rainfall.toFixed(2);
+        document.getElementById("sunlight").innerText = roundedSunlight;
+
+        localStorage.setItem("rainfall", rainfall);
+        localStorage.setItem("sunlight_hours", roundedSunlight);
+
+        document.getElementById("status").innerText =
+          `Success!${usedFallback ? " (Sunlight estimated)" : ""}`;
+
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        document.getElementById("status").innerText = "Error fetching data.";
+      });
+  }
+</script>
+
   
   
 </body>

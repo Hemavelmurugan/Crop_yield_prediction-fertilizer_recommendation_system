@@ -101,82 +101,91 @@
   </div>
 
   <script>
-    window.onload = function () {
-      // Restore saved data from localStorage
-      const city = localStorage.getItem("city");
-      const lat = localStorage.getItem("latitude");
-      const lon = localStorage.getItem("longitude");
-      const temperature = localStorage.getItem("temperature");
-      const humidity = localStorage.getItem("humidity");
-  
-      if (city) document.getElementById("city").value = city;
-      if (lat) document.getElementById("lat").value = lat;
-      if (lon) document.getElementById("lon").value = lon;
-      if (temperature) document.getElementById("temperature").textContent = temperature;
-      if (humidity) document.getElementById("humidity").textContent = humidity;
-    };
-  
-    async function fetchWeather() {
-      const city = document.getElementById("city").value.trim();
-      const place = document.getElementById("place").value.trim();
-  
-      if (!city || !place) {
-        alert("Please enter both city and place.");
+  window.onload = function () {
+    // Restore saved data from localStorage
+    const city = localStorage.getItem("city");
+    const lat = localStorage.getItem("latitude");
+    const lon = localStorage.getItem("longitude");
+    const temperature = localStorage.getItem("temperature");
+    const humidity = localStorage.getItem("humidity");
+
+    if (city) document.getElementById("city").value = city;
+    if (lat) document.getElementById("lat").value = lat;
+    if (lon) document.getElementById("lon").value = lon;
+    if (temperature) document.getElementById("temperature").textContent = temperature;
+    if (humidity) document.getElementById("humidity").textContent = humidity;
+  };
+
+  async function fetchWeather() {
+    const city = document.getElementById("city").value.trim();
+    const place = document.getElementById("place").value.trim();
+
+    if (!city || !place) {
+      alert("Please enter both city and place.");
+      return;
+    }
+
+    localStorage.setItem("city", city); // Save city
+
+    const fullLocation = `${place}, ${city}`;
+
+    try {
+      // 🌍 Fetch coordinates using NOMINATIM (NO API KEY)
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(fullLocation)}`,
+        {
+          headers: {
+            "Accept": "application/json",
+            "User-Agent": "CropYieldPredictionSystem/1.0 (student-project)"
+          }
+        }
+      );
+
+      const geoData = await geoRes.json();
+
+      if (!geoData || geoData.length === 0) {
+        alert("Failed to get coordinates for the place.");
         return;
       }
-  
-      localStorage.setItem("city", city); // Save city in case it's typed
-  
-      const fullLocation = `${place}, ${city}`;
-      const geoApiKey = "fa8f5c2fdab54d83952a22fceb2740ec"; // OpenCage key
-  
-      try {
-        // Fetch coordinates
-        const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(fullLocation)}&key=${geoApiKey}`);
-        const geoData = await geoRes.json();
-  
-        if (!geoData.results || geoData.results.length === 0) {
-          alert("Failed to get coordinates for the place.");
-          return;
-        }
-  
-        const lat = geoData.results[0].geometry.lat.toFixed(4);
-        const lon = geoData.results[0].geometry.lng.toFixed(4);
-  
-        document.getElementById("lat").value = lat;
-        document.getElementById("lon").value = lon;
-  
-        // Call weather backend
-        const weatherRes = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-        if (!weatherRes.ok) throw new Error("Bad response from weather API");
-  
-        const data = await weatherRes.json();
-  
-        if (!data || data.temperature == null || data.humidity == null) {
-          alert("Weather data not found.");
-          return;
-        }
-  
-        document.getElementById("temperature").textContent = data.temperature;
-        document.getElementById("humidity").textContent = data.humidity;
-  
-        // Store values for persistence
-        localStorage.setItem("temperature", data.temperature);
-        localStorage.setItem("humidity", data.humidity);
-        localStorage.setItem("latitude", lat);
-        localStorage.setItem("longitude", lon);
-  
-        // Redirect back
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000);
-  
-      } catch (err) {
-        console.error("Error fetching weather:", err);
-        alert("Something went wrong. Please try again.");
+
+      const lat = parseFloat(geoData[0].lat).toFixed(4);
+      const lon = parseFloat(geoData[0].lon).toFixed(4);
+
+      document.getElementById("lat").value = lat;
+      document.getElementById("lon").value = lon;
+
+      // 🌦 Call weather backend
+      const weatherRes = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      if (!weatherRes.ok) throw new Error("Bad response from weather API");
+
+      const data = await weatherRes.json();
+
+      if (!data || data.temperature == null || data.humidity == null) {
+        alert("Weather data not found.");
+        return;
       }
+
+      document.getElementById("temperature").textContent = data.temperature;
+      document.getElementById("humidity").textContent = data.humidity;
+
+      // 💾 Store values
+      localStorage.setItem("temperature", data.temperature);
+      localStorage.setItem("humidity", data.humidity);
+      localStorage.setItem("latitude", lat);
+      localStorage.setItem("longitude", lon);
+
+      // 🔁 Redirect back
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+
+    } catch (err) {
+      console.error("Error fetching weather:", err);
+      alert("Something went wrong. Please try again.");
     }
-  </script>
+  }
+</script>
+
   
 </body>
 </html>

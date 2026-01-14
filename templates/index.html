@@ -272,44 +272,57 @@
       // If you ever want to clear them, do it manually or on a reset button click
     };
 
-    async function getLatLon() {
-      const city = document.getElementById("city").value.trim();
-      if (!city) {
-        alert("Please enter a city name.");
-        return;
+   
+async function getLatLon() {
+  const city = document.getElementById("city").value.trim();
+  if (!city) {
+    alert("Please enter a city name.");
+    return;
+  }
+
+  // 🔁 Nominatim API (NO API KEY)
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(city)}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "Accept": "application/json",
+        "User-Agent": "CropYieldPredictionSystem/1.0 (student-project)"
       }
+    });
 
-      const apiKey = "fa8f5c2fdab54d83952a22fceb2740ec"; // OpenCage API key
-      const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(city)}&key=${apiKey}`;
+    const data = await response.json();
 
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!data.results || data.results.length === 0) {
-          alert("No results found for this city.");
-          return;
-        }
-
-        const lat = data.results[0].geometry.lat.toFixed(4);
-        const lon = data.results[0].geometry.lng.toFixed(4);
-
-        document.getElementById("lat").value = lat;
-        document.getElementById("lon").value = lon;
-
-        // Save to localStorage
-        localStorage.setItem("city", city);
-        localStorage.setItem("lat", lat);
-        localStorage.setItem("lon", lon);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to fetch coordinates.");
-      }
+    if (!data || data.length === 0) {
+      alert("No results found for this city.");
+      return;
     }
+
+    // 🔄 Same logic as OpenCage version
+    const lat = parseFloat(data[0].lat).toFixed(4);
+    const lon = parseFloat(data[0].lon).toFixed(4);
+
+    document.getElementById("lat").value = lat;
+    document.getElementById("lon").value = lon;
+
+    // Save to localStorage
+    localStorage.setItem("city", city);
+    localStorage.setItem("lat", lat);
+    localStorage.setItem("lon", lon);
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to fetch coordinates.");
+  }
+}
+
+
 
     function storeCityAndGoToWeather() {
       if (!storeCityAndCoords()) return;
       window.location.href = "/weather";
+
+      
     }
 
     function storeCityAndGoToRain() {
